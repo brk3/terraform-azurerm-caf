@@ -10,11 +10,13 @@ module "mssql_managed_databases" {
 
   global_settings     = local.global_settings
   settings            = each.value
-  server_name         = local.combined_objects_mssql_managed_instances[try(each.value.lz_key, local.client_config.landingzone_key)][each.value.mi_server_key].name
+  server_name         = try(each.value.mi_server_key, null) == null ? each.value.server_name : local.combined_objects_mssql_managed_instances[try(each.value.lz_key, local.client_config.landingzone_key)][each.value.mi_server_key].name
   location            = lookup(each.value, "region", null) == null ? local.combined_objects_resource_groups[try(each.value.lz_key, local.client_config.landingzone_key)][each.value.resource_group_key].location : local.global_settings.regions[each.value.region]
-  resource_group_name = local.combined_objects_resource_groups[try(each.value.lz_key, local.client_config.landingzone_key)][each.value.resource_group_key].name
-  base_tags           = try(local.global_settings.inherit_tags, false) ? local.combined_objects_resource_groups[try(each.value.lz_key, local.client_config.landingzone_key)][each.value.resource_group_key].tags : {}
-}
+  resource_group_name = try(each.value.resource_group_key, null) == null ? each.value.resource_group_name : local.combined_objects_resource_groups[try(each.value.lz_key, local.client_config.landingzone_key)][each.value.resource_group_key].name
+  #TEMP workaround 
+  #base_tags          = try(local.global_settings.inherit_tags, false) ? local.combined_objects_resource_groups[try(each.value.lz_key, local.client_config.landingzone_key)][each.value.resource_group_key].tags : {}
+  base_tags           = {}
+ }
 
 module "mssql_managed_databases_restore" {
   source   = "./modules/databases/mssql_managed_database"
