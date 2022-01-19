@@ -24,5 +24,10 @@ module "aks_clusters" {
     for group_key in try(each.value.admin_groups.azuread_groups.keys, {}) : local.combined_objects_azuread_groups[local.client_config.landingzone_key][group_key].id
   ])
 
+  remote_objects = {
+    resource_groups = local.combined_objects_resource_groups
+    vnets           = local.combined_objects_networking
+    private_dns     = local.combined_objects_private_dns
+  }
 
 }
