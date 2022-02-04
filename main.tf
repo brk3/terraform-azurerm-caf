@@ -33,8 +33,25 @@ provider "azurerm" {
   }
 }
 
+# An optional secondary provider for modules which support the 'provision_in_hub' argument
+provider "azurerm" {
+  partner_id = "ca4078f8-9bc4-471b-ab5b-3af6b86a42c8"
+  # partner identifier for CAF Terraform landing zones.
+  features {
+    template_deployment {
+      delete_nested_items_during_deletion = false
+    }
+  }
+
+  subscription_id = local.global_settings.hub_subscription_id
+  alias           = "network_hub"
+}
+
 data "azurerm_subscription" "primary" {}
 data "azurerm_client_config" "current" {}
+data "azurerm_subscription" "hub" {
+  subscription_id = local.global_settings.hub_subscription_id
+}
 
 # The rover handle the identity management transition to cover interactive run and execution on pipelines using azure ad applications or managed identities
 # There are different scenrios are considered:
